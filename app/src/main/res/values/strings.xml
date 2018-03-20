@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MediaExercise</string>
+    <string name="my_blog">http://blog.csdn.net/wangxp423</string>
+    <string name="my_github">https://github.com/wangxp423</string>
+</resources>
