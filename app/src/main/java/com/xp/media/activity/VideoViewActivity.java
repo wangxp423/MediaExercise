@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.widget.MediaController;
 import android.widget.Toast;
 
@@ -28,6 +29,9 @@ import butterknife.OnClick;
 public class VideoViewActivity extends StatusBarBaseActivity {
     @BindView(R.id.vv_videoview)
     CustomVideoView vvVideoview;
+
+    public static final String EXTRA_URI = "extra_uri";
+    private String mUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +75,16 @@ public class VideoViewActivity extends StatusBarBaseActivity {
                 return false;
             }
         });
+        startVideo();
+    }
+
+    //如果传进来的有URI地址就直接播放
+    private void startVideo() {
+        mUri = getIntent().getStringExtra(EXTRA_URI);
+        if (!TextUtils.isEmpty(mUri)) {
+            vvVideoview.setVideoPath(mUri);
+            vvVideoview.start();
+        }
     }
 
     @OnClick(R.id.btn_videoview_local)

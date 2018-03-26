@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView
+        android:id="@+id/vv_custom_videoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#80ffffff"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/iv_record_pause"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="left|center_vertical"
+            android:scaleType="center"
+            android:src="@drawable/recordvideo_delete" />
+
+        <!-- 开始/结束 录制按钮 -->
+        <ImageView
+            android:id="@+id/iv_record_control"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:src="@drawable/recordvideo_control_start" />
+
+        <ImageView
+            android:id="@+id/iv_record_save"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="center"
+            android:visibility="gone"
+            android:layout_gravity="right|center_vertical"
+            android:src="@drawable/recordvideo_save" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/iv_record_switch"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="right"
+        android:src="@drawable/record_camera_switch_normal" />
+
+    <Chronometer
+        android:id="@+id/cn_record_time"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:textColor="@color/white"
+        android:format="%s" />
+</FrameLayout>

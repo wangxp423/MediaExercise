@@ -33,6 +33,7 @@ public class WelcomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(WelcomActivity.this, MainActivity.class));
+                finish();
             }
         });
     }

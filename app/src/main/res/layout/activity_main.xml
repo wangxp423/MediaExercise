@@ -15,4 +15,25 @@
         android:text="VideoView引导页播放视频"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btn_system_record_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="调用系统录像功能"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_custom_record_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="自定义录像功能"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_weixin_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="仿微信拍照、录端视频"
+        android:textAllCaps="false" />
+
 </LinearLayout>
