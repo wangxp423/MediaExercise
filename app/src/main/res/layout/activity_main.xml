@@ -36,4 +36,11 @@
         android:text="仿微信拍照、录端视频"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btn_textureview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextureView播放视频,小窗口播放"
+        android:textAllCaps="false" />
+
 </LinearLayout>

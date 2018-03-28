@@ -34,6 +34,8 @@
         <activity android:name=".activity.VideoViewActivity" />
         <activity android:name=".activity.CustomRecordActivity" />
         <activity android:name=".weixin.WeixinRecordActivity" />
+        <activity android:name=".textureview.TextureViewMainActivity" />
+        <activity android:name=".textureview.activity.ActivityPlayActivity" />
     </application>
 
 </manifest>

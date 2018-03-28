@@ -13,6 +13,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xp.media.activity.CustomRecordActivity;
 import com.xp.media.activity.VideoViewActivity;
 import com.xp.media.statusbar.StatusBarBaseActivity;
+import com.xp.media.textureview.TextureViewMainActivity;
 import com.xp.media.util.FileUtil;
 import com.xp.media.weixin.WeixinRecordActivity;
 
@@ -68,6 +69,11 @@ public class MainActivity extends StatusBarBaseActivity {
     @OnClick(R.id.btn_weixin_view)
     public void clickWeixinView() {
         startActivity(new Intent(this, WeixinRecordActivity.class));
+    }
+
+    @OnClick(R.id.btn_textureview)
+    public void clickTextureViewMain() {
+        startActivity(new Intent(this, TextureViewMainActivity.class));
     }
 
     @Override
