@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_controller_parent"
     android:layout_width="match_parent"
-    android:layout_height="200dp">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_video_cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
 
     <!--视频加载进度条-->
     <ProgressBar
@@ -14,9 +21,9 @@
 
     <RelativeLayout
         android:id="@+id/rl_play_finish"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#b4000000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:visibility="visible">
 
         <LinearLayout
@@ -76,7 +83,6 @@
         android:layout_height="40dp"
         android:background="@drawable/player_mask_top"
         android:gravity="center"
-        android:text="@string/textureview_video_title"
         android:textColor="@color/white"
         android:textSize="14sp" />
 

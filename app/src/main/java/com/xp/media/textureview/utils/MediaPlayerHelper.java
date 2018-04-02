@@ -1,6 +1,7 @@
 package com.xp.media.textureview.utils;
 
-import android.media.MediaPlayer;
+import com.xp.media.textureview.view.VideoMediaController;
+import com.xp.media.textureview.view.VideoPlayer;
 
 /**
  * @类描述：MediaPlayer 工具类
@@ -12,41 +13,63 @@ import android.media.MediaPlayer;
  */
 
 public class MediaPlayerHelper {
-    private static MediaPlayer mPlayer;
+    private static MediaPlayerHelper mHelper;
+    private VideoPlayer mVideoPlayer;
+
 
     private MediaPlayerHelper() {
     }
 
-    public static MediaPlayer getInstance() {
-        if (null == mPlayer) {
+    public static MediaPlayerHelper getInstance() {
+        if (null == mHelper) {
             synchronized (MediaPlayerHelper.class) {
-                if (null == mPlayer) {
-                    mPlayer = new MediaPlayer();
+                if (null == mHelper) {
+                    mHelper = new MediaPlayerHelper();
                 }
             }
         }
-        return mPlayer;
+        return mHelper;
     }
 
-    //播放
-    public static void play() {
-        if (mPlayer != null) {
-            mPlayer.start();
-        }
+    public void setVideoPlayer(VideoPlayer player) {
+        this.mVideoPlayer = player;
     }
 
     //暂停
-    public static void pause() {
-        if (mPlayer != null) {
-            mPlayer.pause();
+    public void pause() {
+        if (null != mVideoPlayer) {
+            mVideoPlayer.mVideoMediaControl.mediaPause();
+        }
+    }
+
+    //继续
+    public void continues() {
+        if (null != mVideoPlayer) {
+            mVideoPlayer.mVideoMediaControl.mediaContinue();
         }
     }
 
     //释放
-    public static void release() {
-        if (mPlayer != null) {
-            mPlayer.release();
-            mPlayer = null;
+    public void release() {
+        if (null != mVideoPlayer) {
+            mVideoPlayer.videoPlayerRelease();
+            mVideoPlayer = null;
         }
+    }
+
+    public boolean onBackPressed() {
+        if (null != mVideoPlayer) {
+            int status = mVideoPlayer.mVideoMediaControl.getTextureWindowStatus();
+            if (status == VideoMediaController.TEXTURE_WINDOW_FULLSCREEN) {
+                mVideoPlayer.exitFullScreen();
+                return true;
+            } else if (status == VideoMediaController.TEXTURE_WINDOW_TINY) {
+                mVideoPlayer.exitTinyWindow();
+                return true;
+            } else {
+                release();
+            }
+        }
+        return false;
     }
 }

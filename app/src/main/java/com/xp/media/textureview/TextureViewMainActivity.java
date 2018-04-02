@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.xp.media.R;
 import com.xp.media.statusbar.StatusBarBaseActivity;
 import com.xp.media.textureview.activity.ActivityPlayActivity;
+import com.xp.media.textureview.activity.ListVideoActivity;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -35,7 +36,7 @@ public class TextureViewMainActivity extends StatusBarBaseActivity {
 
     @OnClick(R.id.btn_recycler_play)
     public void clickRecyclerViewPlay() {
-
+        startActivity(new Intent(this, ListVideoActivity.class));
     }
 
     @OnClick(R.id.btn_window_play)

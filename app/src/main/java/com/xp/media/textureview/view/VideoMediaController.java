@@ -15,8 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.xp.media.R;
-import com.xp.media.textureview.utils.MediaPlayerHelper;
 import com.xp.media.util.LogUtils;
 import com.xp.media.util.ToastUtil;
 
@@ -39,6 +39,10 @@ import butterknife.OnClick;
 public class VideoMediaController extends FrameLayout {
 
     private static final String TAG = "VideoMediaController";
+    @BindView(R.id.fl_controller_parent)
+    FrameLayout flParent;
+    @BindView(R.id.iv_video_cover)
+    ImageView ivCover;
     @BindView(R.id.pb_loading)
     ProgressBar pbLoading;
     @BindView(R.id.iv_replay)
@@ -63,10 +67,18 @@ public class VideoMediaController extends FrameLayout {
     ImageView ivFullscreen;
     @BindView(R.id.ll_play_control)
     LinearLayout llPlayControl;
-    private boolean hasPause;//是否暂停
+    private int mTextureWindowStatus = TEXTURE_WINDOW_NORMAL;
+    private int mMediaPlayerStatus = MEDIA_PLAYER_IDLE;
+    public final static int TEXTURE_WINDOW_NORMAL = 0;//正常
+    public final static int TEXTURE_WINDOW_TINY = 1;//小窗
+    public final static int TEXTURE_WINDOW_FULLSCREEN = 2;//全屏
+    public final static int MEDIA_PLAYER_IDLE = -1;//尚未播放 闲置状态
+    public final static int MEDIA_PLAYER_PLAYING = 0;//播放中
+    public final static int MEDIA_PLAYER_PAUSE = 1;//暂停
+    public final static int MEDIA_PLAYER_FINISH = 2;//暂停
 
-    private static final int MSG_UPDATE_TIME_PROGRESS = 1;
-    private static final int MSG_HIDE_TITLE_CONTROLLER = 2;
+    private static final int MSG_HIDE_TITLE_CONTROLLER = 1;
+    private static final int MSG_UPDATE_TIME_PROGRESS = 2;
     //消息处理器
     private Handler mHandler = new Handler() {
         @Override
@@ -100,10 +112,26 @@ public class VideoMediaController extends FrameLayout {
     }
 
     private VideoPlayer myVideoPlayer;
-
     public void setVideoPlayer(VideoPlayer myVideoPlayer) {
         this.myVideoPlayer = myVideoPlayer;
     }
+
+    public void setTextureWindowStatus(int status) {
+        this.mTextureWindowStatus = status;
+    }
+
+    public int getTextureWindowStatus() {
+        return mTextureWindowStatus;
+    }
+
+    public void setMediaPlayerStatus(int status) {
+        this.mMediaPlayerStatus = status;
+    }
+
+    public int getMediaPlayerStatus() {
+        return mMediaPlayerStatus;
+    }
+
 
     //初始化控件
     private void initView() {
@@ -119,6 +147,7 @@ public class VideoMediaController extends FrameLayout {
 
     //初始化控件的显示状态
     public void initViewDisplay() {
+        ivCover.setVisibility(VISIBLE);
         tvTitle.setVisibility(View.VISIBLE);
         ivPlay.setVisibility(View.VISIBLE);
         ivPlay.setImageResource(R.drawable.new_play_video);
@@ -131,25 +160,31 @@ public class VideoMediaController extends FrameLayout {
         seekBar.setSecondaryProgress(0);
     }
 
+    public void setTitleAndConverImage() {
+        tvTitle.setText(myVideoPlayer.getPlayData().getVideoTitle());
+        Glide.with(getContext()).load(myVideoPlayer.getPlayData().getImageUrl()).placeholder(R.drawable.bg_beautiful_girl).crossFade().into(ivCover);
+    }
+
     //设置视频加载进度条的显示状态
     public void setPbLoadingVisiable(int visiable) {
         pbLoading.setVisibility(visiable);
     }
 
+    public int mProgress = 0;
     private SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         //拖动的过程中调用
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            LogUtils.d("Test", "progress = " + progress);
+//            LogUtils.d("Test", "progress = " + progress);
+            mProgress = progress;
+            updatePlayTimeByDragProgress(progress);
+            pauseUpdatePlayTimeAndProgress();
         }
 
         //开始拖动的时候调用
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
             LogUtils.d("Test", "onStartTrackingTouch");
-            //暂停视频的播放、停止时间和进度条的更新
-            MediaPlayerHelper.pause();
-            mHandler.removeMessages(MSG_UPDATE_TIME_PROGRESS);
         }
 
         //停止拖动时调用
@@ -160,10 +195,7 @@ public class VideoMediaController extends FrameLayout {
             int progress = seekBar.getProgress();
             int duration = myVideoPlayer.mPlayer.getDuration();
             int position = duration * progress / 100;
-            myVideoPlayer.mPlayer.seekTo(position);
-            //开始播放、开始时间和进度条的更新
-            MediaPlayerHelper.play();
-            updatePlayTimeAndProgress();
+            mediaSeekto(position);
         }
     };
 
@@ -181,7 +213,6 @@ public class VideoMediaController extends FrameLayout {
         ivPlay.setVisibility(VISIBLE);
         showTitleAnimation();
         showControlAnimation();
-        mHandler.sendEmptyMessageDelayed(MSG_HIDE_TITLE_CONTROLLER, 5000);
     }
 
     private void hideTitleAndControl() {
@@ -278,6 +309,7 @@ public class VideoMediaController extends FrameLayout {
     public void setDuration(int duration) {
         String time = formatDuration(duration);
         tvTime.setText(time);
+        tvAllTime.setText(time);
         tvUseTime.setText("00:00");
     }
 
@@ -287,15 +319,26 @@ public class VideoMediaController extends FrameLayout {
         return format.format(new Date(duration));
     }
 
+    //拖动进度条 更新播放时间
+    public void updatePlayTimeByDragProgress(int progress) {
+        if (null == myVideoPlayer.mPlayer) return;
+        //获取目前播放的进度
+        int currentTime = myVideoPlayer.mPlayer.getDuration() * progress / 100;
+        //格式化
+        String useTime = formatDuration(currentTime);
+        tvUseTime.setText(useTime);
+    }
+
     //更新播放的时间和进度
     public void updatePlayTimeAndProgress() {
+        if (null == myVideoPlayer.mPlayer) return;
         //获取目前播放的进度
-        int currentPosition = MediaPlayerHelper.getInstance().getCurrentPosition();
+        int currentPosition = myVideoPlayer.mPlayer.getCurrentPosition();
         //格式化
         String useTime = formatDuration(currentPosition);
         tvUseTime.setText(useTime);
         //更新进度
-        int duration = MediaPlayerHelper.getInstance().getDuration();
+        int duration = myVideoPlayer.mPlayer.getDuration();
         if (duration == 0) {
             return;
         }
@@ -303,22 +346,51 @@ public class VideoMediaController extends FrameLayout {
         seekBar.setProgress(progress);
         //发送一个更新的延时消息
         mHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME_PROGRESS, 500);
+//        LogUtils.d("Test","total = " + duration + " currentPosition = " + currentPosition + " progress = " + progress);
     }
 
-    //移除所有的消息
-    public void removeAllMessage() {
-        mHandler.removeCallbacksAndMessages(null);
+    public void pauseUpdatePlayTimeAndProgress() {
+        mHandler.removeMessages(MSG_UPDATE_TIME_PROGRESS);
     }
 
     //显示视频播放完成的界面
     public void showPlayFinishView() {
+        hideTitleAndControl();
         showTitleAnimation();
         rlPlayFinish.setVisibility(View.VISIBLE);
         tvAllTime.setVisibility(View.VISIBLE);
+        ivPlay.setVisibility(GONE);
+        setMediaPlayerStatus(MEDIA_PLAYER_FINISH);
+        pauseUpdatePlayTimeAndProgress();
+    }
+
+    private void meidaFirstPlay() {
+        ivPlay.setVisibility(View.GONE);
+        ivPlay.setImageResource(R.drawable.new_pause_video);
+        tvAllTime.setVisibility(View.GONE);
+        pbLoading.setVisibility(View.VISIBLE);
+        myVideoPlayer.videoPlayerStart();
+    }
+
+    //开始播放(第一次播放)
+    public void mediaPreparedPlay() {
+        if (null == myVideoPlayer.mPlayer) return;
+        ivCover.setVisibility(GONE);
+        //隐藏视频加载进度条
+        setPbLoadingVisiable(View.GONE);
+        //进行视频的播放
+        myVideoPlayer.mPlayer.start();
+        setMediaPlayerStatus(MEDIA_PLAYER_PLAYING);
+        //隐藏标题
+        hideTitleAnimation();
+        //设置视频的总时长
+        setDuration(myVideoPlayer.mPlayer.getDuration());
+        updatePlayTimeAndProgress();
     }
 
     //重新播放
-    private void replay() {
+    private void mediaReplay() {
+        if (null == myVideoPlayer.mPlayer) return;
         //隐藏播放完成界面
         rlPlayFinish.setVisibility(View.GONE);
         //隐藏时间
@@ -327,13 +399,49 @@ public class VideoMediaController extends FrameLayout {
         //进度条
         seekBar.setProgress(0);
         //把媒体播放器的位置移动到开始的位置
-        MediaPlayerHelper.getInstance().seekTo(0);
+        myVideoPlayer.mPlayer.seekTo(0);
         //开始播放
-        MediaPlayerHelper.play();
+        myVideoPlayer.mPlayer.start();
+        setMediaPlayerStatus(MEDIA_PLAYER_PLAYING);
         //延时隐藏标题
         hideTitleAnimation();
+        updatePlayTimeAndProgress();
     }
 
+    //暂停
+    public void mediaPause() {
+        if (null == myVideoPlayer.mPlayer) return;
+        //暂停
+        myVideoPlayer.mPlayer.pause();
+        //移除隐藏Controller布局的消息
+        mHandler.removeMessages(MSG_HIDE_TITLE_CONTROLLER);
+        ivPlay.setImageResource(R.drawable.new_play_video);
+        setMediaPlayerStatus(MEDIA_PLAYER_PAUSE);
+        pauseUpdatePlayTimeAndProgress();
+    }
+
+    //继续
+    public void mediaContinue() {
+        if (null == myVideoPlayer.mPlayer) return;
+        myVideoPlayer.mPlayer.start();
+        mHandler.sendEmptyMessage(MSG_HIDE_TITLE_CONTROLLER);
+        ivPlay.setImageResource(R.drawable.new_pause_video);
+        setMediaPlayerStatus(MEDIA_PLAYER_PLAYING);
+        updatePlayTimeAndProgress();
+    }
+
+    //指定位置播放
+    public void mediaSeekto(int positon) {
+        if (null == myVideoPlayer.mPlayer) return;
+        myVideoPlayer.mPlayer.seekTo(positon);
+        mediaContinue();
+    }
+
+    public void mediaReset() {
+        setMediaPlayerStatus(MEDIA_PLAYER_IDLE);
+        initViewDisplay();
+        pauseUpdatePlayTimeAndProgress();
+    }
 
     //简单的动画监听器（不需要其他的监听器去实现多余的方法）
     private class SimpleAnimationListener implements Animation.AnimationListener {
@@ -354,49 +462,45 @@ public class VideoMediaController extends FrameLayout {
         }
     }
 
-    @OnClick({R.id.iv_replay, R.id.iv_share, R.id.iv_play, R.id.iv_fullscreen, R.id.ll_play_control})
+    @OnClick({R.id.iv_replay, R.id.iv_share, R.id.iv_play, R.id.iv_fullscreen, R.id.fl_controller_parent})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_replay:
-                replay();
+                mediaReplay();
                 break;
             case R.id.iv_share:
                 ToastUtil.showShortToast(getContext(), "分享链接");
                 break;
             case R.id.iv_play:
-                if (MediaPlayerHelper.getInstance().isPlaying()) {
-                    //暂停
-                    MediaPlayerHelper.pause();
-                    //移除隐藏Controller布局的消息
-                    mHandler.removeMessages(MSG_HIDE_TITLE_CONTROLLER);
-                    //移除更新播放时间和进度的消息
-                    mHandler.removeMessages(MSG_UPDATE_TIME_PROGRESS);
-                    ivPlay.setImageResource(R.drawable.new_play_video);
-                    hasPause = true;
-                } else {
-                    if (hasPause) {
-                        //继续播放
-                        MediaPlayerHelper.play();
-                        mHandler.sendEmptyMessageDelayed(MSG_HIDE_TITLE_CONTROLLER, 2000);
-                        updatePlayTimeAndProgress();
-                        hasPause = false;
-                    } else {
-                        //播放
-                        ivPlay.setVisibility(View.GONE);
-                        tvAllTime.setVisibility(View.GONE);
-                        pbLoading.setVisibility(View.VISIBLE);
-                        //视频播放界面也需要显示
-                        myVideoPlayer.setVideoViewVisiable(View.VISIBLE);
-                    }
-                    ivPlay.setImageResource(R.drawable.new_pause_video);
+                if (mMediaPlayerStatus == MEDIA_PLAYER_IDLE) {
+                    meidaFirstPlay();
+                } else if (mMediaPlayerStatus == MEDIA_PLAYER_PLAYING) {
+                    mediaPause();
+                } else if (mMediaPlayerStatus == MEDIA_PLAYER_PAUSE) {
+                    mediaContinue();
                 }
                 break;
             case R.id.iv_fullscreen:
-                ToastUtil.showShortToast(getContext(), "全屏播放");
+                switch (mTextureWindowStatus) {
+                    case TEXTURE_WINDOW_NORMAL:
+                        myVideoPlayer.enterFullScreen();
+                        break;
+                    case TEXTURE_WINDOW_FULLSCREEN:
+                        myVideoPlayer.exitFullScreen();
+                        break;
+                    case TEXTURE_WINDOW_TINY:
+                        myVideoPlayer.tinyWindowToFullScreen();
+                        break;
+                }
                 break;
-            case R.id.ll_play_control:
+            case R.id.fl_controller_parent:
+                if (mMediaPlayerStatus == MEDIA_PLAYER_PLAYING || mMediaPlayerStatus == MEDIA_PLAYER_PAUSE) {
+                    showOrHideTitleControl();
+                    if (tvTitle.getVisibility() == GONE && llPlayControl.getVisibility() == GONE) {
+                        mHandler.sendEmptyMessageDelayed(MSG_HIDE_TITLE_CONTROLLER, 5000);
+                    }
+                }
                 break;
         }
     }
-
 }

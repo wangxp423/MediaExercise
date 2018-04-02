@@ -35,7 +35,14 @@
         <activity android:name=".activity.CustomRecordActivity" />
         <activity android:name=".weixin.WeixinRecordActivity" />
         <activity android:name=".textureview.TextureViewMainActivity" />
-        <activity android:name=".textureview.activity.ActivityPlayActivity" />
+        <activity
+            android:name=".textureview.activity.ActivityPlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".textureview.activity.ListVideoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

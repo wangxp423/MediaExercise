@@ -6,22 +6,17 @@
 
     <include layout="@layout/include_toolbar_layout" />
 
-    <FrameLayout
+
+    <com.xp.media.textureview.view.VideoPlayer
+        android:id="@+id/texture_video_player"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="240dp"
+        android:transitionName="@string/shareview_fullscreen"></com.xp.media.textureview.view.VideoPlayer>
 
-        <ImageView
-            android:id="@+id/iv_video_cover"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/bg_beautiful_girl" />
-
-        <com.xp.media.textureview.view.VideoPlayer
-            android:id="@+id/texture_video_player"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"></com.xp.media.textureview.view.VideoPlayer>
-    </FrameLayout>
-
+    <Button
+        android:id="@+id/texture_video_window"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="小窗播放" />
 
 </LinearLayout>
