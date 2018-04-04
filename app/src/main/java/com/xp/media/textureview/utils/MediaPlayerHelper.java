@@ -15,6 +15,7 @@ import com.xp.media.textureview.view.VideoPlayer;
 public class MediaPlayerHelper {
     private static MediaPlayerHelper mHelper;
     private VideoPlayer mVideoPlayer;
+    private boolean supportFloatWindow = false;
 
 
     private MediaPlayerHelper() {
@@ -66,10 +67,28 @@ public class MediaPlayerHelper {
             } else if (status == VideoMediaController.TEXTURE_WINDOW_TINY) {
                 mVideoPlayer.exitTinyWindow();
                 return true;
+            } else if (status == VideoMediaController.TEXTURE_WINDOW_FLOAT) {
+                if (!supportFloatWindow) {
+                    mVideoPlayer.exitFloatWindow();
+                    return true;
+                }
+            } else if (status == VideoMediaController.TEXTURE_WINDOW_NORMAL) {
+                //如果是正常模式 如果支持小窗播放
+                if (supportFloatWindow) {
+                    mVideoPlayer.enterFloatWindow();
+                }
             } else {
                 release();
             }
         }
         return false;
+    }
+
+    public void setSupportFloatWindow(boolean isSupport) {
+        supportFloatWindow = isSupport;
+    }
+
+    public boolean getSupportFloatWindow() {
+        return supportFloatWindow;
     }
 }

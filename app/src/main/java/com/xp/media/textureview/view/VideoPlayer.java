@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.xp.media.R;
+import com.xp.media.floatwindow.DraggableFloatView;
+import com.xp.media.floatwindow.DraggableFloatWindowManager;
 import com.xp.media.textureview.bean.VideoPlayerInfo;
 import com.xp.media.textureview.utils.MediaPlayerHelper;
 import com.xp.media.textureview.utils.MediaUtil;
@@ -227,6 +229,8 @@ public class VideoPlayer extends FrameLayout {
 
     //进入全屏
     public void enterFullScreen() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_FULLSCREEN)
+            return;
         mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_FULLSCREEN);
         MediaUtil.hideActionBar(getContext());
         MediaUtil.scanForActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -240,6 +244,8 @@ public class VideoPlayer extends FrameLayout {
 
     //退出全屏
     public void exitFullScreen() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_NORMAL)
+            return;
         mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_NORMAL);
         MediaUtil.showActionBar(getContext());
         MediaUtil.scanForActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -253,6 +259,8 @@ public class VideoPlayer extends FrameLayout {
 
     //小窗播放
     public void enterTinyWindow() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_TINY)
+            return;
         mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_TINY);
         this.removeView(mContainer);
         // 小窗口的宽度为屏幕宽度的60%，长宽比默认为16:9，右边距、下边距为8dp
@@ -267,6 +275,8 @@ public class VideoPlayer extends FrameLayout {
 
     //退出小窗播放
     public void exitTinyWindow() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_NORMAL)
+            return;
         mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_NORMAL);
         ViewGroup contentView = (ViewGroup) MediaUtil.scanForActivity(getContext()).findViewById(android.R.id.content);
         contentView.removeView(mContainer);
@@ -276,6 +286,8 @@ public class VideoPlayer extends FrameLayout {
 
     //小窗播放到全屏播放
     public void tinyWindowToFullScreen() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_FULLSCREEN)
+            return;
         mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_FULLSCREEN);
         MediaUtil.hideActionBar(getContext());
         MediaUtil.scanForActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -284,6 +296,34 @@ public class VideoPlayer extends FrameLayout {
         // 将Container添加至NiceMediaPlayer这个FrameLayout
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         contentView.addView(mContainer, params);
+    }
+
+    //进入悬浮窗播放
+    public void enterFloatWindow() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_FLOAT)
+            return;
+        mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_FLOAT);
+        this.removeView(mContainer);
+        // 小窗口的宽度为屏幕宽度的60%，长宽比默认为16:9，右边距、下边距为8dp
+        LayoutParams params = new LayoutParams((int) (MediaUtil.getScreenWidth(getContext()) * 0.6f),
+                (int) (MediaUtil.getScreenWidth(getContext()) * 0.6f * 9f / 16f));
+        params.gravity = Gravity.BOTTOM | Gravity.END;
+        params.rightMargin = MediaUtil.dp2px(getContext(), 8f);
+        params.bottomMargin = MediaUtil.dp2px(getContext(), 8f);
+        DraggableFloatWindowManager.getInstance().addFloatWindow(mContainer);
+    }
+
+    //退出悬浮窗播放
+    public void exitFloatWindow() {
+        if (mVideoMediaControl.getTextureWindowStatus() == VideoMediaController.TEXTURE_WINDOW_NORMAL)
+            return;
+        mVideoMediaControl.setTextureWindowStatus(VideoMediaController.TEXTURE_WINDOW_NORMAL);
+        DraggableFloatView floatWindow = DraggableFloatWindowManager.getInstance().getFloatViewContrain();
+        ViewGroup group = (ViewGroup) floatWindow.findViewById(R.id.fl_float_contrain);
+        group.removeView(mContainer);
+        DraggableFloatWindowManager.getInstance().removeFloatWindow();
+        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        this.addView(mContainer, params);
     }
 
     public void videoPlayerRelease() {

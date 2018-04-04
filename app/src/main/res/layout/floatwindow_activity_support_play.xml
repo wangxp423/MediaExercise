@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_toolbar_layout" />
+
+
+    <com.xp.media.textureview.view.VideoPlayer
+        android:id="@+id/texture_floatwindow_player"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:transitionName="@string/shareview_fullscreen"></com.xp.media.textureview.view.VideoPlayer>
+
+    <Button
+        android:id="@+id/btn_floatwindow_support"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="悬浮窗播放" />
+
+    <Button
+        android:id="@+id/btn_floatwindow_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="设置--默认不支持退出小窗" />
+
+</LinearLayout>

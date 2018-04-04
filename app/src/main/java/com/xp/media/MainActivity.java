@@ -12,8 +12,10 @@ import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xp.media.activity.CustomRecordActivity;
 import com.xp.media.activity.VideoViewActivity;
+import com.xp.media.floatwindow.DraggableFloatWindowManager;
 import com.xp.media.statusbar.StatusBarBaseActivity;
 import com.xp.media.textureview.TextureViewMainActivity;
+import com.xp.media.textureview.utils.MediaPlayerHelper;
 import com.xp.media.util.FileUtil;
 import com.xp.media.weixin.WeixinRecordActivity;
 
@@ -107,5 +109,12 @@ public class MainActivity extends StatusBarBaseActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DraggableFloatWindowManager.getInstance().removeFloatWindow();
+        MediaPlayerHelper.getInstance().release();
     }
 }

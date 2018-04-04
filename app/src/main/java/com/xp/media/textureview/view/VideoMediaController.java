@@ -72,6 +72,7 @@ public class VideoMediaController extends FrameLayout {
     public final static int TEXTURE_WINDOW_NORMAL = 0;//正常
     public final static int TEXTURE_WINDOW_TINY = 1;//小窗
     public final static int TEXTURE_WINDOW_FULLSCREEN = 2;//全屏
+    public final static int TEXTURE_WINDOW_FLOAT = 3;//悬浮窗
     public final static int MEDIA_PLAYER_IDLE = -1;//尚未播放 闲置状态
     public final static int MEDIA_PLAYER_PLAYING = 0;//播放中
     public final static int MEDIA_PLAYER_PAUSE = 1;//暂停
