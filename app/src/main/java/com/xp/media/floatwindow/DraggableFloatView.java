@@ -1,10 +1,12 @@
 package com.xp.media.floatwindow;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 
 import com.xp.media.R;
@@ -37,6 +39,9 @@ public class DraggableFloatView extends FrameLayout implements View.OnClickListe
         flFloatContrain.addView(popWin);
         mOnFlingListener = flingListener;
 //        mTouchBt.setOnClickListener(this);
+        screenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
+        floatWindowWidth = getWidth();
+        LogUtils.d("Test", "floatWindowWidth = " + floatWindowWidth);
     }
 
     private void testSomething() {
@@ -52,28 +57,34 @@ public class DraggableFloatView extends FrameLayout implements View.OnClickListe
     float downX, downY;
     float moveX, moveY;
     long startTime, endTime;
+    int leftDistance, rightDistance;
+    int screenWidth, floatWindowWidth;
+    int translationTotalX;//在X轴的滑动偏移
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
 //            LogUtils.d("Test", "ACTION_DOWN");
-//            testSomething();
+            floatWindowWidth = getWidth();
+            LogUtils.d("Test", "floatWindowWidth = " + floatWindowWidth);
             startTime = System.currentTimeMillis();
             downX = ev.getRawX();
             downY = ev.getRawY();
-            LogUtils.d("Test", "downX " + downX + "   downY = " + downY);
-            LogUtils.d("Test", "getX " + ev.getX() + "   getY = " + ev.getY());
+            leftDistance = (int) (downX - ev.getX());
+            rightDistance = screenWidth - leftDistance - getWidth();
+            LogUtils.d("Test", "leftDistance = " + leftDistance + "   rightDistance = " + rightDistance);
         } else if (ev.getAction() == MotionEvent.ACTION_MOVE) {
 //            LogUtils.d("Test", "ACTION_MOVE");
             moveX = ev.getRawX();
             moveY = ev.getRawY();
-            if (mOnFlingListener != null)
-                mOnFlingListener.onMove(moveX - downX, moveY - downY);
+            setDragParams();
             downX = moveX;
             downY = moveY;
-            return true;
         } else if (ev.getAction() == MotionEvent.ACTION_UP) {
 //            LogUtils.d("Test", "ACTION_UP");
+            setFloatWindowDismiss();
+            translationTotalX = 0;
+            LogUtils.d("Test", "getWidth = " + getWidth());
             endTime = System.currentTimeMillis();
             //当从点击到弹起小于半秒的时候,则判断为点击,如果超过则不响应点击事件
             if ((endTime - startTime) > 0.5 * 1000L) {
@@ -82,6 +93,92 @@ public class DraggableFloatView extends FrameLayout implements View.OnClickListe
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    private void setDragParams() {
+        int translationX = 0;
+        if (mOnFlingListener != null) {
+            translationX = Math.round(moveX - downX);
+            mOnFlingListener.onMove(translationX, moveY - downY);
+        }
+        translationTotalX = translationTotalX + translationX;
+        LogUtils.d("Test", "translationTotalX = " + translationTotalX);
+        if (translationTotalX > 0 && translationTotalX >= rightDistance) {
+            setRightMarginLayoutParams(translationX);
+        } else if (translationTotalX < 0 && Math.abs(translationTotalX) >= leftDistance) {
+            setLeftMarginLayoutParams(translationX);
+        }
+    }
+
+    private void setRightMarginLayoutParams(int translationX) {
+        LayoutParams params = (LayoutParams) flFloatContrain.getLayoutParams();
+        params.rightMargin = params.rightMargin - translationX;
+        flFloatContrain.setLayoutParams(params);
+    }
+
+    private void setLeftMarginLayoutParams(int translationX) {
+        LayoutParams params = (LayoutParams) flFloatContrain.getLayoutParams();
+        params.leftMargin = params.leftMargin + translationX;
+        flFloatContrain.setLayoutParams(params);
+    }
+
+    private void resetLayoutParams() {
+        LayoutParams params = (LayoutParams) flFloatContrain.getLayoutParams();
+        params.rightMargin = 0;
+        params.leftMargin = 0;
+        flFloatContrain.setLayoutParams(params);
+    }
+
+    //如果移除屏幕距离大于窗口宽度的一半 则移除悬浮窗
+    private void setFloatWindowDismiss() {
+        if (translationTotalX > 0 && translationTotalX >= rightDistance && (translationTotalX - rightDistance) > floatWindowWidth / 2) {
+            DraggableFloatWindowManager.getInstance().removeFloatWindow();
+            resetWindowManagerLayoutParamsAtRight();
+        } else if (translationTotalX < 0 && Math.abs(translationTotalX) >= leftDistance && (Math.abs(translationTotalX) - leftDistance) > floatWindowWidth / 2) {
+            DraggableFloatWindowManager.getInstance().removeFloatWindow();
+            resetWindowManagerLayoutParamsAtLeft();
+        } else {
+            if (translationTotalX > 0 && translationTotalX >= rightDistance && (translationTotalX - rightDistance) < floatWindowWidth / 2) {
+                resetWindowManagerLayoutParamsAtRight();
+            } else if (translationTotalX < 0 && Math.abs(translationTotalX) >= leftDistance && (Math.abs(translationTotalX) - leftDistance) < floatWindowWidth / 2) {
+                resetWindowManagerLayoutParamsAtLeft();
+            }
+            resetLayoutParams();
+        }
+    }
+
+    private void resetWindowManagerLayoutParamsAtLeft() {
+        DraggableFloatWindowManager.getInstance().getWindowManagerParams().x = 0;
+
+    }
+
+    private void resetWindowManagerLayoutParamsAtRight() {
+        DraggableFloatWindowManager.getInstance().getWindowManagerParams().x = screenWidth - floatWindowWidth;
+    }
+
+    int offset;
+
+    private void setActionUpAnimation() {
+        LogUtils.d("Test", "getWidth = " + getWidth() + "   floatWindowWidth = " + floatWindowWidth);
+        ValueAnimator animator = ValueAnimator.ofInt(getWidth(), floatWindowWidth);
+        animator.setInterpolator(new AccelerateInterpolator());
+        animator.setDuration(600);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                offset = (int) animation.getAnimatedValue() - offset;
+                if (translationTotalX > 0 && translationTotalX >= rightDistance) {
+                    setRightMarginLayoutParams(offset);
+                } else if (translationTotalX < 0 && Math.abs(translationTotalX) >= leftDistance) {
+                    setLeftMarginLayoutParams(-offset);
+                }
+                offset = (int) animation.getAnimatedValue();
+                if (offset == floatWindowWidth) {
+                    DraggableFloatWindowManager.getInstance().removeFloatWindow();
+                }
+            }
+        });
+        animator.start();
     }
 
     public void setTouchButtonClickListener(OnTouchButtonClickListener touchButtonClickListener) {

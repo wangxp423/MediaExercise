@@ -7,18 +7,22 @@ TextureView播放视频，小窗播放，列表播放，悬浮窗播放
 ![alt text](https://github.com/wangxp423/MediaExercise/raw/master/screenshot/textureview_main.png)
 
 小窗播放动图
+
 ![alt text](https://github.com/wangxp423/MediaExercise/raw/master/screenshot/texture_small_window.gif)
 
 
 列表包含全屏播放动图
+
 ![alt text](https://github.com/wangxp423/MediaExercise/raw/master/screenshot/texture_list_fullscreen.gif)
 
 
 悬浮窗播放动图
+
 ![alt text](https://github.com/wangxp423/MediaExercise/raw/master/screenshot/texture_floatwindow.gif)
 
 
 欢迎关注个人微信公众账号账号：
+
 ![alt text](https://github.com/wangxp423/MediaExercise/raw/master/screenshot/qrcode.jpg)
 
 

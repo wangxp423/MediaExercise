@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -62,10 +63,16 @@ public class DraggableFloatWindowManager {
                 mParams.type = WindowManager.LayoutParams.TYPE_TOAST;
             }
             //The default position is vertically to the right
-//        mParams.gravity = Gravity.CENTER_VERTICAL | Gravity.END;
+            mParams.gravity = Gravity.LEFT;
             mParams.format = PixelFormat.RGBA_8888;
+            mParams.x = 0;
+            mParams.y = 0;
             LogUtils.d("Test", "params.x = " + mParams.x + "   params.y = " + mParams.y);
         }
+    }
+
+    public WindowManager.LayoutParams getWindowManagerParams() {
+        return mParams;
     }
 
 
@@ -120,10 +127,9 @@ public class DraggableFloatWindowManager {
         mDraggableFloatView = new DraggableFloatView(context, new OnFlingListener() {
             @Override
             public void onMove(float moveX, float moveY) {
-                LogUtils.d("Test", "moveX = " + moveX + " moveY = " + moveY);
                 mParams.x = (int) (mParams.x + moveX);
                 mParams.y = (int) (mParams.y + moveY);
-                LogUtils.d("Test", "mParams.x = " + mParams.x + " mParams.y = " + mParams.y);
+//                LogUtils.d("Test", "mParams.x = " + mParams.x + " mParams.y = " + mParams.y);
                 mWindowManager.updateViewLayout(mDraggableFloatView, mParams);
             }
         }, popWin);
