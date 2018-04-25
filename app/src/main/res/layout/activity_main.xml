@@ -43,4 +43,11 @@
         android:text="TextureView播放视频,小窗口播放"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btn_ijkplayer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ijkplayer接入练习"
+        android:textAllCaps="false" />
+
 </LinearLayout>

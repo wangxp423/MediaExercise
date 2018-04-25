@@ -13,6 +13,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xp.media.activity.CustomRecordActivity;
 import com.xp.media.activity.VideoViewActivity;
 import com.xp.media.floatwindow.DraggableFloatWindowManager;
+import com.xp.media.ijkplayer.NormalPlayActivity;
 import com.xp.media.statusbar.StatusBarBaseActivity;
 import com.xp.media.textureview.TextureViewMainActivity;
 import com.xp.media.textureview.utils.MediaPlayerHelper;
@@ -76,6 +77,11 @@ public class MainActivity extends StatusBarBaseActivity {
     @OnClick(R.id.btn_textureview)
     public void clickTextureViewMain() {
         startActivity(new Intent(this, TextureViewMainActivity.class));
+    }
+
+    @OnClick(R.id.btn_ijkplayer)
+    public void clickIjkplayerExercise() {
+        startActivity(new Intent(this, NormalPlayActivity.class));
     }
 
     @Override

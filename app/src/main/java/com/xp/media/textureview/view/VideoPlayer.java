@@ -183,6 +183,7 @@ public class VideoPlayer extends FrameLayout {
     private MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
+            LogUtils.d("Test", "what = " + what + "   extra = " + extra);
             return true;
         }
     };

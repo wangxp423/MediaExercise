@@ -18,6 +18,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
@@ -41,4 +46,19 @@ dependencies {
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
     implementation files('libs/isoviewer-1.0-RC-27.jar')
     compile 'com.github.bumptech.glide:glide:3.7.0'
+
+    //ijkplayer
+    final IJKPLAYER_VERSION = '0.8.8'
+    //required, enough for most devices.
+    compile "tv.danmaku.ijk.media:ijkplayer-java:$IJKPLAYER_VERSION"
+    compile "tv.danmaku.ijk.media:ijkplayer-armv7a:$IJKPLAYER_VERSION"
+
+    //Other ABIs: optional
+//    compile "tv.danmaku.ijk.media:ijkplayer-armv5:$IJKPLAYER_VERSION"
+//    compile "tv.danmaku.ijk.media:ijkplayer-arm64:$IJKPLAYER_VERSION"
+//    compile "tv.danmaku.ijk.media:ijkplayer-x86:$IJKPLAYER_VERSION"
+//    compile "tv.danmaku.ijk.media:ijkplayer-x86_64:$IJKPLAYER_VERSION"
+
+    //ExoPlayer as IMediaPlayer: optional, experimental
+//    compile "tv.danmaku.ijk.media:ijkplayer-exo:$IJKPLAYER_VERSION"
 }

@@ -84,12 +84,12 @@ public class DraggableFloatWindowManager {
     public void removeFloatWindow() {
         if (null != mDraggableFloatView) {
             mWindowManager.removeView(mDraggableFloatView);
+            mDraggableFloatView.removeAllViews();
+            mDraggableFloatWindow = null;
         }
         mContext = null;
-        mDraggableFloatView.removeAllViews();
         mWindowManager = null;
         mParams = null;
-        mDraggableFloatWindow = null;
     }
 
     public DraggableFloatView getFloatViewContrain() {
